@@ -30,7 +30,29 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Project Setup
+        run: |
+          npm run setup
+          npm run dev:daemon
+          
       - name: Run Claude Code
         uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+          custom_instructions: |
+            The project is already set up with all dependencies installed.
+            The server is running at localhost:3000.
+            If needed, use the mcp__playwright tools to launch a browser.
+
+          mcp_config: |
+              {
+                "mcpServers": {
+                  "playwright": {
+                    "command": "npx",
+                    "args": ["@playwright/mcp@latest", "--allowed-origins", "localhost:3000"]
+                  }
+                }
+              }
+
+          allowed_tools: "Bash(npm:*),mcp__playwright__browser_snapshot,mcp__playwright__browser_click"
